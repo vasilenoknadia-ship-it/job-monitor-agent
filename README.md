@@ -8,11 +8,18 @@
 
 ## Статус
 
-Это ранняя стадия разработки (Фаза 1 из плана): вертикальный срез пайплайна
-работает на одном источнике (Greenhouse) и одном тестовом наборе полей.
-Canonical resolver, deduplication, track classifier, geography validator,
-relevance scorer и Google Sheets writer — пока заглушки (`*_stub` в
-`src/pipeline.py`), которые нужно заменять по одной на реальную логику.
+Фаза 2 из плана выполнена: Google Sheets writer реализован полностью
+(`src/sheets/auth.py`, `src/sheets/schema.py`, `src/sheets/writer.py`).
+Пайплайн теперь реально создаёт листы `Vacancies`, `Runs`, `Source Logs`,
+`Lists` при первом запуске (если их ещё нет), обновляет существующие строки
+по `job_id` без создания дублей и никогда не перезаписывает пользовательские
+поля (`application_status`, `decision_date`, `user_notes` и т.д.) при
+повторном запуске.
+
+Остаются заглушками (`*_stub` в `src/pipeline.py`): canonical resolver,
+дедупликация (сейчас только точное совпадение по `job_id`), track classifier,
+geography validator, relevance scorer. Это следующие шаги — по одному
+модулю за раз.
 
 ## Структура репозитория
 

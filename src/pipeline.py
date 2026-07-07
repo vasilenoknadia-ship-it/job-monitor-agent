@@ -24,6 +24,8 @@ from __future__ import annotations
 
 import logging
 import sys
+import uuid
+from datetime import datetime, timezone
 from pathlib import Path
 
 # Позволяет запускать `python main.py` из корня репозитория без установки
@@ -36,6 +38,8 @@ from config_loader.loader import AppConfig, load_all  # noqa: E402
 from connectors.base import BaseConnector, ConnectorError  # noqa: E402
 from models.vacancy import Vacancy  # noqa: E402
 from normalizer.normalizer import normalize  # noqa: E402
+from sheets.auth import SheetsConfigError, get_spreadsheet  # noqa: E402
+from sheets.writer import write_run_results  # noqa: E402
 
 logging.basicConfig(
     level=logging.INFO,
@@ -85,20 +89,12 @@ def score_stub(vacancy: Vacancy) -> Vacancy:
     return vacancy
 
 
-def write_to_sheets_stub(vacancies: list[Vacancy], run_stats: dict) -> None:
-    """TODO(Фаза 2): реальный Google Sheets writer — раздел 13 ТЗ.
-    Пока просто логирует, что было бы записано, чтобы можно было
-    прогонять пайплайн локально до настройки Google-доступа."""
-    logger.info(
-        "Sheets writer stub: было бы записано %d вакансий. Run stats: %s",
-        len(vacancies),
-        run_stats,
-    )
-
-
 # --- сам пайплайн -----------------------------------------------------------
 
 def run() -> None:
+    run_id = str(uuid.uuid4())
+    started_at = datetime.now(timezone.utc)
+
     logger.info("Загружаю конфигурацию треков и источников...")
     config = load_all()
     logger.info(
@@ -111,15 +107,48 @@ def run() -> None:
 
     raw_count = 0
     all_vacancies: list[Vacancy] = []
-    source_errors: list[str] = []
+    source_logs: list[dict] = []
+    sources_successful = 0
+    sources_failed = 0
 
     for connector in connectors:
+        checked_at = datetime.now(timezone.utc)
         try:
             raw_vacancies = connector.fetch()
         except ConnectorError as exc:
             logger.warning("Ошибка источника: %s", exc)
-            source_errors.append(str(exc))
+            sources_failed += 1
+            source_logs.append({
+                "run_id": run_id,
+                "source_name": connector.source_name,
+                "source_type": getattr(connector, "source_type", ""),
+                "source_url": "",
+                "run_status": "failed",
+                "jobs_found": 0,
+                "error_type": type(exc).__name__,
+                "error_message": exc.message,
+                "attempts": 1,
+                "last_successful_run": "",
+                "consecutive_failures": 1,
+                "checked_at": checked_at,
+            })
             continue
+
+        sources_successful += 1
+        source_logs.append({
+            "run_id": run_id,
+            "source_name": connector.source_name,
+            "source_type": getattr(connector, "source_type", ""),
+            "source_url": "",
+            "run_status": "success",
+            "jobs_found": len(raw_vacancies),
+            "error_type": "",
+            "error_message": "",
+            "attempts": 1,
+            "last_successful_run": checked_at,
+            "consecutive_failures": 0,
+            "checked_at": checked_at,
+        })
 
         raw_count += len(raw_vacancies)
         for raw in raw_vacancies:
@@ -135,15 +164,38 @@ def run() -> None:
         vacancy = score_stub(vacancy)
         all_vacancies[i] = vacancy
 
-    run_stats = {
+    finished_at = datetime.now(timezone.utc)
+    manual_review_jobs = sum(1 for v in all_vacancies if v.manual_review_required)
+
+    run_data = {
+        "run_id": run_id,
+        "started_at": started_at,
+        "finished_at": finished_at,
+        "timezone": "Europe/Vilnius",
         "sources_planned": len(connectors),
-        "sources_failed": len(source_errors),
+        "sources_checked": len(connectors),
+        "sources_successful": sources_successful,
+        "sources_partial": 0,
+        "sources_failed": sources_failed,
         "jobs_discovered_raw": raw_count,
         "jobs_after_deduplication": len(all_vacancies),
+        "updated_jobs": 0,  # перезаписывается write_run_results() из upsert_stats
+        "reopened_jobs": 0,
+        "manual_review_jobs": manual_review_jobs,
+        "run_status": "success" if sources_failed == 0 else "partial",
+        "run_note": "",
     }
 
-    write_to_sheets_stub(all_vacancies, run_stats)
-    logger.info("Готово. %s", run_stats)
+    try:
+        spreadsheet = get_spreadsheet()
+        final_run_data = write_run_results(spreadsheet, all_vacancies, run_data, source_logs)
+        logger.info("Готово. %s", final_run_data)
+    except SheetsConfigError as exc:
+        logger.error(
+            "Не удалось записать в Google Sheets (%s). Результаты прогона: %s",
+            exc,
+            run_data,
+        )
 
 
 def _build_connectors() -> list[BaseConnector]:
