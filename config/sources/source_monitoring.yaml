@@ -1,0 +1,366 @@
+# Source Monitoring Specification
+# Источник бизнес-правил: раздел 24 сводного ТЗ.
+# Контракт полей — раздел 2 ТЗ.
+
+# ATS-платформы: у части из них есть публичный JSON API, что делает их
+# самым дешёвым и надёжным источником (раздел 24, п.8 — "многие вакансии
+# появляются здесь до попадания в job board"). has_public_api=true —
+# значит для неё стоит писать connector в первую очередь (Фаза 1-4 плана).
+ats_platforms:
+  - name: "Greenhouse"
+    domain_pattern: "boards.greenhouse.io"
+    has_public_api: true
+    api_notes: >
+      Публичный JSON API: https://boards-api.greenhouse.io/v1/boards/{board_token}/jobs
+      Токен борда = обычно slug компании в URL карьерной страницы.
+  - name: "Lever"
+    domain_pattern: "jobs.lever.co"
+    has_public_api: true
+    api_notes: >
+      Публичный JSON API: https://api.lever.co/v0/postings/{company_slug}?mode=json
+  - name: "Ashby"
+    domain_pattern: "jobs.ashbyhq.com"
+    has_public_api: true
+    api_notes: "Публичный API через GraphQL-эндпоинт jobPostings; требует board name из URL."
+  - name: "Workable"
+    domain_pattern: "jobs.workable.com"
+    has_public_api: true
+    api_notes: "Публичный JSON API через apply.workable.com/api/v1/widget/accounts/{account}"
+  - name: "SmartRecruiters"
+    domain_pattern: "careers.smartrecruiters.com"
+    has_public_api: true
+    api_notes: "Публичный API: https://api.smartrecruiters.com/v1/companies/{company}/postings"
+  - name: "Teamtailor"
+    domain_pattern: "teamtailor.com"
+    has_public_api: true
+    api_notes: "У части компаний включён публичный careers API/JSON feed."
+  - name: "Personio"
+    domain_pattern: "jobs.personio.com"
+    has_public_api: false
+    api_notes: "Требует парсинг HTML career page."
+  - name: "Recruitee"
+    domain_pattern: "recruitee.com"
+    has_public_api: true
+    api_notes: "Публичный JSON API: https://{company}.recruitee.com/api/offers/"
+  - name: "Comeet"
+    domain_pattern: "comeet.com"
+    has_public_api: false
+  - name: "Jobvite"
+    domain_pattern: "jobs.jobvite.com"
+    has_public_api: false
+  - name: "iCIMS"
+    domain_pattern: "icims.com"
+    has_public_api: false
+  - name: "SuccessFactors"
+    domain_pattern: "successfactors.com"
+    has_public_api: false
+  - name: "Workday"
+    domain_pattern: "myworkdayjobs.com"
+    has_public_api: false
+    api_notes: >
+      Формально не публичный API, но фронтенд дёргает JSON-эндпоинт
+      /wday/cxs/{tenant}/{site}/jobs — можно использовать так же, как API,
+      уважая rate limits и robots.txt.
+  - name: "Pinpoint"
+    domain_pattern: "pinpointhq.com"
+    has_public_api: false
+  - name: "BambooHR"
+    domain_pattern: "bamboohr.com"
+    has_public_api: false
+
+# Раздел 24, п.14 — стартовый шорт-лист из 35 групп источников.
+# priority: 0 (target company pages) | 1 | 2 | 3 (раздел 24, п.3)
+# source_type соответствует enum'у SourceType из src/models/vacancy.py
+sources:
+  - name: "Target company career pages"
+    source_type: company
+    priority: 0
+    frequency: "daily (Priority A) / 2-3x week (Priority B) / weekly (Priority C)"
+    notes: "Список компаний берётся из company_watchlist каждого трека, не хардкодится здесь."
+
+  - name: "LinkedIn Jobs"
+    source_type: job_board
+    priority: 1
+    frequency: daily
+    notes: "Всегда искать оригинальный employer URL."
+  - name: "CVBankas"
+    source_type: job_board
+    priority: 1
+    frequency: daily
+    region: "Lithuania onsite/hybrid"
+  - name: "CV-Online Lithuania"
+    source_type: job_board
+    priority: 1
+    frequency: daily
+    region: "Lithuania and Baltic roles"
+  - name: "Work in Lithuania"
+    source_type: job_board
+    priority: 1
+    frequency: 3x_week
+    region: "International companies in Lithuania"
+  - name: "CVMarket Lithuania"
+    source_type: job_board
+    priority: 2
+    frequency: 2x_week
+  - name: "Google Jobs"
+    source_type: aggregator
+    priority: 2
+    frequency: daily
+  - name: "Indeed UK"
+    source_type: job_board
+    priority: 1
+    frequency: daily
+    region: UK
+  - name: "Indeed Ireland"
+    source_type: job_board
+    priority: 1
+    frequency: daily
+    region: Ireland
+  - name: "IrishJobs"
+    source_type: job_board
+    priority: 1
+    frequency: 3x_week
+    region: Ireland
+  - name: "Reed"
+    source_type: job_board
+    priority: 1
+    frequency: 3x_week
+    region: UK
+  - name: "Totaljobs"
+    source_type: job_board
+    priority: 1
+    frequency: 3x_week
+    region: UK
+  - name: "CV-Library"
+    source_type: job_board
+    priority: 1
+    frequency: 3x_week
+    region: UK
+  - name: "Adzuna UK"
+    source_type: aggregator
+    priority: 2
+    frequency: 2x_week
+    region: UK
+  - name: "EU Remote Jobs"
+    source_type: job_board
+    priority: 1
+    frequency: daily
+    region: "Remote Europe"
+  - name: "Jobgether"
+    source_type: job_board
+    priority: 1
+    frequency: daily
+    region: "Remote Europe"
+  - name: "We Work Remotely"
+    source_type: job_board
+    priority: 1
+    frequency: daily
+    region: "Global remote"
+    notes: "Проверять EU eligibility явно."
+  - name: "Working Nomads"
+    source_type: job_board
+    priority: 1
+    frequency: 3x_week
+    region: "Remote Europe"
+  - name: "RemotifyEurope"
+    source_type: job_board
+    priority: 1
+    frequency: 3x_week
+    region: "European time zones"
+  - name: "Remotive"
+    source_type: job_board
+    priority: 1
+    frequency: 3x_week
+    region: "Remote startups"
+  - name: "Dynamite Jobs"
+    source_type: job_board
+    priority: 1
+    frequency: 3x_week
+    region: "Remote-first companies"
+  - name: "NoDesk"
+    source_type: job_board
+    priority: 2
+    frequency: 2x_week
+    region: "Remote roles"
+  - name: "Wellfound"
+    source_type: job_board
+    priority: 1
+    frequency: daily
+    region: "Startups and scale-ups"
+    notes: "Former AngelList Talent."
+  - name: "Welcome to the Jungle"
+    source_type: job_board
+    priority: 1
+    frequency: daily
+    region: "European startups"
+  - name: "The Hub"
+    source_type: job_board
+    priority: 1
+    frequency: 3x_week
+    region: "Nordic startups"
+  - name: "Business of Fashion Careers"
+    source_type: job_board
+    priority: 1
+    frequency: 3x_week
+    region: "Fashion and beauty"
+    notes: "High-value for Track 3."
+  - name: "FashionJobs.com"
+    source_type: job_board
+    priority: 1
+    frequency: 3x_week
+    region: "Fashion, luxury, beauty Europe"
+  - name: "RetailChoice"
+    source_type: job_board
+    priority: 1
+    frequency: 3x_week
+    region: "UK retail, buying and e-commerce"
+    notes: "High-value for Buyer, Category and Trading roles."
+  - name: "Drapers Jobs"
+    source_type: job_board
+    priority: 1
+    frequency: 2x_week
+    region: "Fashion retail and merchandising"
+    notes: "Track 3 specialist source."
+  - name: "FashionUnited Jobs"
+    source_type: job_board
+    priority: 2
+    frequency: 2x_week
+    region: "Fashion Europe"
+  - name: "Luxe Talent"
+    source_type: agency
+    priority: 2
+    frequency: 2x_week
+    region: "Luxury, fashion and retail"
+  - name: "Cranberry Panda"
+    source_type: agency
+    priority: 2
+    frequency: weekly
+    region: "UK / Europe"
+  - name: "3Search"
+    source_type: agency
+    priority: 2
+    frequency: weekly
+    region: "E-commerce / digital"
+  - name: "Michael Page E-commerce"
+    source_type: agency
+    priority: 2
+    frequency: weekly
+  - name: "Greenhouse / Lever / Ashby / Workable ATS search"
+    source_type: ats
+    priority: 0
+    frequency: daily
+    notes: "Прямой обход ATS-доменов из ats_platforms, а не через job board."
+
+# Раздел 24, п.3 и п.13 — приоритет источников и как это влияет на выбор
+# canonical source / дедупликацию (используется canonical_resolver и
+# deduplication engine)
+source_priority_rules:
+  hierarchy:
+    - "company_career_page"
+    - "employer_ats_page"
+    - "specialist_industry_board"
+    - "major_national_job_board"
+    - "recruitment_agency"
+    - "aggregator"
+  source_quality_score:
+    company_career_page_or_ats: 100
+    specialist_board_direct_to_employer: 90
+    major_national_board_full_description: 80
+    reputable_recruitment_agency: 70
+    aggregator_confirmed_original: 50
+    aggregator_unconfirmed_original: 20
+
+# Раздел 24, п.7 и раздел 7 общего ТЗ — правила поиска и фиксации canonical URL
+canonical_source_rules:
+  resolution_order:
+    - "official employer website"
+    - "official employer ATS"
+    - "recruitment agency posting"
+    - "job board"
+    - "aggregator"
+  aggregator_workflow:
+    - "extract employer, exact title, location and visible date"
+    - "search employer career page and ATS for the same role"
+    - "save employer/ATS URL as canonical_url"
+    - "keep aggregator URL only as discovered_via"
+    - "reject record if original role is closed, expired or unconfirmable after reasonable check"
+  if_not_found:
+    canonical_url: null
+    add_concern: "original source not confirmed"
+    score_may_be_reduced: true
+
+# Раздел 24, п.10
+freshness_rules:
+  prefer_posted_within_days: 30
+  keep_older_if_still_accepting_applications: true
+  reject_if_marked:
+    - closed
+    - filled
+    - expired
+    - archived
+    - "no longer accepting applications"
+  if_no_date_shown:
+    date_posted: null
+    use_field: "first_seen_at"
+  recheck_unresolved_on_next_run: true
+
+# Раздел 24, п.9 — географическая совместимость на уровне источников
+# (детальные правила по трекам — в geography_rules каждого track_*.yaml)
+geography_compatibility_signals:
+  auto_compatible:
+    - "Vilnius"
+    - "Lithuania"
+    - "Baltics"
+    - "Remote Europe"
+    - "Remote EU"
+    - "Remote EEA"
+    - "Europe - Remote"
+    - "EU-based"
+    - "Remote from Lithuania"
+    - "EMEA remote"
+    - "CET / EET timezone"
+    - "Contractor within the EU"
+  manual_review:
+    - "UK remote"
+    - "Ireland remote"
+    - "Germany remote"
+    - "France remote"
+    - "Hybrid London / Berlin / Prague / Stockholm / Copenhagen"
+    - "Relocation support"
+    - "Work from abroad"
+    - "EMEA"
+  explicit_reject_only_if:
+    - "Must reside in the UK"
+    - "UK residents only"
+    - "UK right to work required"
+    - "Ireland-based only"
+    - "Remote only within Germany"
+    - "No employment outside listed country"
+
+# Раздел 24, п.15 — сознательно НЕ подключаем в первой версии
+fallback_rules:
+  excluded_sources_v1:
+    - name: "Dice"
+      reason: "mainly US technology jobs"
+    - name: "Toptal"
+      reason: "freelance technology network"
+    - name: "Technojobs"
+      reason: "excessively technology-heavy"
+    - name: "The Metaverse Jobs"
+      reason: "too narrow and weakly relevant"
+    - name: "Getwork"
+      reason: "strong US bias"
+    - name: "ZipRecruiter"
+      reason: "mainly US"
+    - name: "Ladders"
+      reason: "US senior-job bias"
+    - name: "CareerBuilder"
+      reason: "US bias and duplicate risk"
+    - name: "Idealist"
+      reason: "nonprofit focus"
+    - name: "XING Jobs"
+      reason: "low priority for English-language remote search"
+    - name: "Monster"
+      reason: "add later only if core sources underperform"
+  add_later_if_core_underperforms:
+    - "Monster"

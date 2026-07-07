@@ -1,0 +1,408 @@
+# Track 1 — Amazon / Marketplace Operations
+# Источник бизнес-правил: раздел 25 сводного ТЗ.
+# Контракт полей — раздел 2 ТЗ. Общий движок (src/classifier) не должен
+# содержать ни одного значения из этого файла захардкоженным в коде.
+
+track_id: track_1
+track_name: "Amazon / Marketplace Operations"
+
+target_titles:
+  - "Amazon Marketplace Manager"
+  - "Senior Amazon Marketplace Manager"
+  - "Amazon Manager"
+  - "Senior Amazon Manager"
+  - "Amazon Brand Manager"
+  - "Senior Amazon Brand Manager"
+  - "Amazon Growth Manager"
+  - "Amazon Account Manager"
+  - "Senior Amazon Account Manager"
+  - "Amazon Operations Manager"
+  - "Amazon Channel Manager"
+  - "Amazon E-commerce Manager"
+  - "Marketplace Manager"
+  - "Senior Marketplace Manager"
+  - "Marketplaces Manager"
+  - "Marketplace Account Manager"
+  - "Marketplace Operations Manager"
+  - "Marketplace Growth Manager"
+  - "Marketplace Lead"
+  - "Amazon Team Lead"
+  - "Marketplace Team Lead"
+  - "Head of Amazon"
+  - "Head of Amazon and Marketplaces"
+  - "Head of Marketplace"
+  - "Head of Marketplaces"
+  - "Head of E-commerce"
+  - "Head of Commerce"
+  - "Amazon Account Head"
+  - "E-commerce Operations Lead"
+  - "Digital Commerce Manager"
+
+# Тайтлы, релевантные только при наличии marketplace-контекста в описании
+# (раздел 25, п.3: "Senior Specialist" / "Department Manager" сами по себе
+# слишком общие)
+conditional_titles:
+  - "Senior Specialist"
+  - "Department Manager"
+  - "Head of Department"
+
+# Раздел 25, п.5 — хотя бы один сигнал должен присутствовать в описании,
+# если тайтл сам по себе неоднозначен (например "Amazon Operations Manager"
+# может означать склад или AWS)
+required_context_signals:
+  - "Seller Central"
+  - "Vendor Central"
+  - "marketplace"
+  - "FBA"
+  - "catalogue"
+  - "catalog"
+  - "listing"
+  - "Amazon Ads"
+  - "PPC"
+  - "ACOS"
+  - "TACOS"
+  - "Buy Box"
+  - "account health"
+  - "marketplace P&L"
+
+positive_signals:
+  - "P&L ownership"
+  - "Seller Central"
+  - "Vendor Central"
+  - "catalogue management"
+  - "listings optimization"
+  - "PPC / advertising ownership"
+  - "account health management"
+  - "process design"
+  - "team management"
+
+negative_signals:
+  - "entry-level responsibilities framed as senior title"
+  - "warehouse / fulfilment floor operations"
+  - "AWS / cloud infrastructure focus"
+  - "pure customer support scope"
+
+# Раздел 25, п.4 — исключаем, если термин описывает саму роль, а не
+# встречается фоново в тексте о компании
+explicit_exclusions:
+  - "intern"
+  - "internship"
+  - "junior"
+  - "assistant"
+  - "virtual assistant"
+  - "customer support"
+  - "warehouse"
+  - "fulfilment associate"
+  - "delivery"
+  - "AWS"
+  - "software engineer"
+  - "cloud"
+  - "solution architect"
+  - "VP"
+  - "chief"
+  - "CMO"
+  - "managing director"
+
+seniority_rules:
+  target_levels:
+    - "senior_individual_contributor"
+    - "team_lead"
+    - "manager"
+    - "head_of_function"
+    - "head_of_department"
+  excluded_levels:
+    - "entry_level"
+    - "internship"
+    - "c_level"
+    - "vp"
+  notes: >
+    "Manager" может быть senior individual-contributor тайтлом.
+    Не требовать наличия прямых подчинённых, если это явно не
+    указано в вакансии (раздел 25, важное примечание).
+
+geography_rules:
+  onsite_hybrid_accepted:
+    - "Vilnius"
+  remote_accepted_regions:
+    - "Europe"
+    - "United Kingdom"
+    - "Ireland"
+  # UK/Ireland remote не отклоняются автоматически — раздел 10 и 19
+  manual_review_regions:
+    - "United Kingdom"
+    - "Ireland"
+
+# Раздел 25, п.2 — company watchlist с частотой мониторинга.
+# monitoring_frequency: daily | 2_3_times_week | weekly
+company_watchlist:
+  # Priority A — monitor daily
+  - name: "BURGA"
+    geography: "Vilnius / sometimes London"
+    priority: "A"
+    monitoring_frequency: daily
+    why: "International DTC brand with a dedicated Amazon/marketplace direction"
+  - name: "Pulsetto"
+    geography: "Vilnius / hybrid / remote"
+    priority: "A"
+    monitoring_frequency: daily
+    why: "Direct fit: marketplace and Amazon ownership in a fast-growing consumer-health brand"
+  - name: "Cohypes"
+    geography: "Vilnius / hybrid"
+    priority: "A"
+    monitoring_frequency: daily
+    why: "Multi-brand e-commerce environment"
+  - name: "Orbio World"
+    geography: "Vilnius / hybrid"
+    priority: "A"
+    monitoring_frequency: daily
+    why: "Large portfolio of DTC products"
+  - name: "Foxelli Group"
+    geography: "Lithuania / remote"
+    priority: "A"
+    monitoring_frequency: daily
+    why: "Remote-first e-commerce company"
+  - name: "IMPACT BRANDS"
+    geography: "Lithuania / remote"
+    priority: "A"
+    monitoring_frequency: daily
+    why: "Consumer/DTC brand portfolio with developed e-commerce and marketplace operations"
+  - name: "Deeper"
+    geography: "Vilnius / hybrid"
+    priority: "A"
+    monitoring_frequency: daily
+    why: "International hardware brand selling across marketplaces"
+  - name: "OBDeleven"
+    geography: "Vilnius / hybrid"
+    priority: "A"
+    monitoring_frequency: daily
+    why: "International consumer-tech brand"
+  - name: "Bison Commerce"
+    geography: "Lithuania / hybrid"
+    priority: "A"
+    monitoring_frequency: daily
+    why: "International e-commerce and logistics environment"
+  - name: "Scriveiner London"
+    geography: "Remote Europe"
+    priority: "A"
+    monitoring_frequency: daily
+    why: "Amazon-led consumer brand"
+  - name: "GNO Partners"
+    geography: "Remote Europe / Berlin"
+    priority: "A"
+    monitoring_frequency: daily
+    why: "Amazon-focused operator"
+  - name: "SellerX"
+    geography: "Europe / Berlin / remote varies"
+    priority: "A"
+    monitoring_frequency: daily
+    why: "Amazon-brand aggregator with marketplace operations"
+  - name: "Razor Group"
+    geography: "Europe / Berlin / remote varies"
+    priority: "A"
+    monitoring_frequency: daily
+    why: "Portfolio of Amazon-native brands"
+  - name: "Berlin Brands Group"
+    geography: "Europe / Berlin"
+    priority: "A"
+    monitoring_frequency: daily
+    why: "Large portfolio of owned consumer brands and mature Amazon/marketplace operations"
+  - name: "Heroes"
+    geography: "UK / Europe"
+    priority: "A"
+    monitoring_frequency: daily
+    why: "Amazon FBA brand platform"
+  - name: "Olsam"
+    geography: "UK / Europe"
+    priority: "A"
+    monitoring_frequency: daily
+    why: "Amazon-native consumer brand platform"
+  - name: "Pattern"
+    geography: "UK / Europe"
+    priority: "A"
+    monitoring_frequency: daily
+    why: "Major marketplace acceleration company"
+  - name: "Luzern eCommerce"
+    geography: "Ireland / Europe"
+    priority: "A"
+    monitoring_frequency: daily
+    why: "Marketplace commerce specialist"
+  - name: "Tambo"
+    geography: "UK / Europe"
+    priority: "A"
+    monitoring_frequency: daily
+    why: "Amazon and marketplace consultancy"
+  - name: "Podean"
+    geography: "UK / Europe"
+    priority: "A"
+    monitoring_frequency: daily
+    why: "Marketplace agency with strong Amazon focus"
+
+  # Priority B — monitor 2-3 times per week
+  - name: "BRANDED"
+    geography: "Europe / UK / remote varies"
+    priority: "B"
+    monitoring_frequency: 2_3_times_week
+    why: "Consumer-brand platform"
+  - name: "Forum Brands"
+    geography: "Europe-compatible remote varies"
+    priority: "B"
+    monitoring_frequency: 2_3_times_week
+    why: "Amazon brand platform"
+  - name: "Flywheel Digital"
+    geography: "UK / Europe"
+    priority: "B"
+    monitoring_frequency: 2_3_times_week
+    why: "Commerce and retail-media specialist"
+  - name: "Acadia"
+    geography: "Europe-compatible remote varies"
+    priority: "B"
+    monitoring_frequency: 2_3_times_week
+    why: "Digital commerce agency"
+  - name: "Trivium Group"
+    geography: "Remote Europe"
+    priority: "B"
+    monitoring_frequency: 2_3_times_week
+    why: "Amazon agency"
+  - name: "Sophie Society"
+    geography: "Remote Europe"
+    priority: "B"
+    monitoring_frequency: 2_3_times_week
+    why: "Amazon PPC and account-management agency"
+  - name: "AdsMasters GmbH"
+    geography: "Germany / remote Europe varies"
+    priority: "B"
+    monitoring_frequency: 2_3_times_week
+    why: "Amazon advertising, marketplace management and operations"
+  - name: "AMZ Bees"
+    geography: "Lithuania / remote"
+    priority: "B"
+    monitoring_frequency: 2_3_times_week
+    why: "Amazon agency"
+  - name: "Marketplace Power"
+    geography: "Europe / remote varies"
+    priority: "B"
+    monitoring_frequency: 2_3_times_week
+    why: "Marketplace services company"
+  - name: "e-Comas"
+    geography: "Europe / remote varies"
+    priority: "B"
+    monitoring_frequency: 2_3_times_week
+    why: "Amazon operations, advertising and account-management"
+  - name: "Ecomcy"
+    geography: "UK / remote varies"
+    priority: "B"
+    monitoring_frequency: 2_3_times_week
+    why: "Amazon consultancy"
+  - name: "Molzi / Brainlabs"
+    geography: "UK / Europe"
+    priority: "B"
+    monitoring_frequency: 2_3_times_week
+    why: "Retail media and marketplace management"
+  - name: "ScaleJet"
+    geography: "Remote Europe / Lithuania"
+    priority: "B"
+    monitoring_frequency: 2_3_times_week
+    why: "Specialised e-commerce recruiter"
+  - name: "Remotivate"
+    geography: "Remote Europe"
+    priority: "B"
+    monitoring_frequency: 2_3_times_week
+    why: "Remote recruiter frequently covering Amazon and e-commerce management"
+  - name: "Cranberry Panda"
+    geography: "UK / Europe"
+    priority: "B"
+    monitoring_frequency: 2_3_times_week
+    why: "Specialised e-commerce recruiter"
+
+  # Priority C — monitor weekly
+  - name: "SharkNinja"
+    geography: "UK / Europe"
+    priority: "C"
+    monitoring_frequency: weekly
+    why: "Large consumer brand with mature Amazon channel"
+  - name: "Helen of Troy"
+    geography: "UK / Europe"
+    priority: "C"
+    monitoring_frequency: weekly
+    why: "Consumer-brand group"
+  - name: "Spectrum Brands"
+    geography: "UK / Europe"
+    priority: "C"
+    monitoring_frequency: weekly
+    why: "Multi-brand consumer company"
+  - name: "Newell Brands"
+    geography: "UK / Europe"
+    priority: "C"
+    monitoring_frequency: weekly
+    why: "Global consumer-products group"
+  - name: "Logitech"
+    geography: "Europe / Ireland / UK"
+    priority: "C"
+    monitoring_frequency: weekly
+    why: "Large consumer-tech company"
+  - name: "Philips"
+    geography: "Europe / UK"
+    priority: "C"
+    monitoring_frequency: weekly
+    why: "Amazon Channel Manager and E-commerce Business Manager roles"
+  - name: "Reckitt"
+    geography: "UK / Europe"
+    priority: "C"
+    monitoring_frequency: weekly
+    why: "Large FMCG company"
+  - name: "Groupe SEB"
+    geography: "Europe / UK"
+    priority: "C"
+    monitoring_frequency: weekly
+    why: "Consumer-appliance group"
+  - name: "Stanley Black & Decker"
+    geography: "UK / Europe"
+    priority: "C"
+    monitoring_frequency: weekly
+    why: "Amazon account management and digital commerce lead positions"
+  - name: "Bosch"
+    geography: "Europe / UK"
+    priority: "C"
+    monitoring_frequency: weekly
+    why: "Marketplace Manager and Amazon Key Account Manager roles"
+  - name: "Focusrite"
+    geography: "UK / hybrid"
+    priority: "C"
+    monitoring_frequency: weekly
+    why: "Consumer-audio brand"
+  - name: "Ooni"
+    geography: "UK / Edinburgh / hybrid"
+    priority: "C"
+    monitoring_frequency: weekly
+    why: "DTC consumer brand"
+  - name: "Mous"
+    geography: "UK / London / hybrid"
+    priority: "C"
+    monitoring_frequency: weekly
+    why: "DTC accessories brand"
+  - name: "Medik8"
+    geography: "UK / hybrid"
+    priority: "C"
+    monitoring_frequency: weekly
+    why: "Beauty brand with marketplace potential"
+  - name: "Tomofun / Furbo"
+    geography: "Europe-compatible remote varies"
+    priority: "C"
+    monitoring_frequency: weekly
+    why: "Consumer-tech brand"
+
+# Раздел 25, п.7 — предложенная шкала (совпадает с общей шкалой раздела 12)
+scoring_rules:
+  scale:
+    excellent: "90-100: direct Amazon/marketplace ownership; senior/lead/head level; geography fully matches; strong overlap with operations, growth and P&L"
+    strong: "75-89: strong marketplace role but broader e-commerce scope, agency environment or slightly imperfect geography"
+    manual_review: "60-74: adjacent digital-commerce role with meaningful Amazon responsibility"
+    reject: "below 60: usually exclude unless company is Priority A and description shows unusually strong Amazon ownership"
+  priority_a_override: true  # Priority A компании получают снисхождение при пограничном score
+
+output_explanation_fields:
+  - "matched_title"
+  - "context_signals_found"
+  - "seniority_estimate"
+  - "geography_status"
+  - "company_priority"
