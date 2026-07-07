@@ -1,0 +1,16 @@
+.env
+credentials/
+*service-account*.json
+*serviceaccount*.json
+*credentials*.json
+
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+*.egg-info/
+
+.vscode/
+.idea/
+.DS_Store
